@@ -1,0 +1,57 @@
+<launch>
+
+    <node pkg="giskardpy" type="joint_trajectory_splitter.py" name="joint_trajectory_splitter_1" output="screen">
+        <remap from="/whole_body_controller/state" to="/whole_body_controller_1/state" />
+        <remap from="/whole_body_controller/follow_joint_trajectory/cancel" to="/whole_body_controller_1/follow_joint_trajectory/cancel" />
+        <remap from="/whole_body_controller/follow_joint_trajectory/feedback" to="/whole_body_controller_1/follow_joint_trajectory/feedback" />
+        <remap from="/whole_body_controller/follow_joint_trajectory/goal" to="/whole_body_controller_1/follow_joint_trajectory/goal" />
+        <remap from="/whole_body_controller/follow_joint_trajectory/result" to="/whole_body_controller_1/follow_joint_trajectory/result" />
+        <remap from="/whole_body_controller/follow_joint_trajectory/status" to="/whole_body_controller_1/follow_joint_trajectory/status" />
+        <rosparam param="state_topics">
+            - /panda_arm/panda_1_joint_trajectory_controller/state 
+        </rosparam>
+        <rosparam param="client_topics">
+            - /panda_arm/panda_1_joint_trajectory_controller/follow_joint_trajectory
+        </rosparam>
+    </node>
+
+    <node pkg="giskardpy" type="giskard_trees.py" name="giskard_1" output="screen">
+        <remap from="/whole_body_controller/state" to="/whole_body_controller_1/state" />
+        <remap from="/whole_body_controller/follow_joint_trajectory/cancel" to="/whole_body_controller_1/follow_joint_trajectory/cancel" />
+        <remap from="/whole_body_controller/follow_joint_trajectory/feedback" to="/whole_body_controller_1/follow_joint_trajectory/feedback" />
+        <remap from="/whole_body_controller/follow_joint_trajectory/goal" to="/whole_body_controller_1/follow_joint_trajectory/goal" />
+        <remap from="/whole_body_controller/follow_joint_trajectory/result" to="/whole_body_controller_1/follow_joint_trajectory/result" />
+        <remap from="/whole_body_controller/follow_joint_trajectory/status" to="/whole_body_controller_1/follow_joint_trajectory/status" />
+        <remap from="robot_description" to="panda_arm/robot_description" />
+        <remap from="joint_states" to="panda_arm/joint_states" />
+        <param name="config" value="$(find giskardpy)/config/panda_arm.yaml" />
+    </node>
+
+    <node pkg="giskardpy" type="joint_trajectory_splitter.py" name="joint_trajectory_splitter_2" output="screen">
+        <remap from="/whole_body_controller/state" to="/whole_body_controller_2/state" />
+        <remap from="/whole_body_controller/follow_joint_trajectory/cancel" to="/whole_body_controller_2/follow_joint_trajectory/cancel" />
+        <remap from="/whole_body_controller/follow_joint_trajectory/feedback" to="/whole_body_controller_2/follow_joint_trajectory/feedback" />
+        <remap from="/whole_body_controller/follow_joint_trajectory/goal" to="/whole_body_controller_2/follow_joint_trajectory/goal" />
+        <remap from="/whole_body_controller/follow_joint_trajectory/result" to="/whole_body_controller_2/follow_joint_trajectory/result" />
+        <remap from="/whole_body_controller/follow_joint_trajectory/status" to="/whole_body_controller_2/follow_joint_trajectory/status" />
+        <rosparam param="state_topics">
+            - /panda_arm/panda_2_joint_trajectory_controller/state 
+        </rosparam>
+        <rosparam param="client_topics">
+            - /panda_arm/panda_2_joint_trajectory_controller/follow_joint_trajectory
+        </rosparam>
+    </node>
+
+    <node pkg="giskardpy" type="giskard_trees.py" name="giskard_2" output="screen">
+        <remap from="/whole_body_controller/state" to="/whole_body_controller_2/state" />
+        <remap from="/whole_body_controller/follow_joint_trajectory/cancel" to="/whole_body_controller_2/follow_joint_trajectory/cancel" />
+        <remap from="/whole_body_controller/follow_joint_trajectory/feedback" to="/whole_body_controller_2/follow_joint_trajectory/feedback" />
+        <remap from="/whole_body_controller/follow_joint_trajectory/goal" to="/whole_body_controller_2/follow_joint_trajectory/goal" />
+        <remap from="/whole_body_controller/follow_joint_trajectory/result" to="/whole_body_controller_2/follow_joint_trajectory/result" />
+        <remap from="/whole_body_controller/follow_joint_trajectory/status" to="/whole_body_controller_2/follow_joint_trajectory/status" />
+        <remap from="robot_description" to="panda_arm/robot_description" />
+        <remap from="joint_states" to="panda_arm/joint_states" />
+        <param name="config" value="$(find giskardpy)/config/panda_arm.yaml" />
+    </node>
+
+</launch>
