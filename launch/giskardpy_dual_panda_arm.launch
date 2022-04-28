@@ -8,10 +8,10 @@
         <remap from="/whole_body_controller/follow_joint_trajectory/result" to="/whole_body_controller_1/follow_joint_trajectory/result" />
         <remap from="/whole_body_controller/follow_joint_trajectory/status" to="/whole_body_controller_1/follow_joint_trajectory/status" />
         <rosparam param="state_topics">
-            - /panda_arm/panda_1_joint_trajectory_controller/state 
+            - /dual_panda_arm/panda_1_joint_trajectory_controller/state 
         </rosparam>
         <rosparam param="client_topics">
-            - /panda_arm/panda_1_joint_trajectory_controller/follow_joint_trajectory
+            - /dual_panda_arm/panda_1_joint_trajectory_controller/follow_joint_trajectory
         </rosparam>
     </node>
 
@@ -22,9 +22,9 @@
         <remap from="/whole_body_controller/follow_joint_trajectory/goal" to="/whole_body_controller_1/follow_joint_trajectory/goal" />
         <remap from="/whole_body_controller/follow_joint_trajectory/result" to="/whole_body_controller_1/follow_joint_trajectory/result" />
         <remap from="/whole_body_controller/follow_joint_trajectory/status" to="/whole_body_controller_1/follow_joint_trajectory/status" />
-        <remap from="robot_description" to="panda_arm/robot_description" />
-        <remap from="joint_states" to="panda_arm/joint_states" />
-        <param name="config" value="$(find giskardpy)/config/panda_arm.yaml" />
+        <remap from="robot_description" to="dual_panda_arm/robot_description" />
+        <remap from="joint_states" to="dual_panda_arm/joint_states" />
+        <param name="config" value="$(find giskardpy)/config/dual_panda_arm.yaml" />
     </node>
 
     <node pkg="giskardpy" type="joint_trajectory_splitter.py" name="joint_trajectory_splitter_2" output="screen">
@@ -35,10 +35,10 @@
         <remap from="/whole_body_controller/follow_joint_trajectory/result" to="/whole_body_controller_2/follow_joint_trajectory/result" />
         <remap from="/whole_body_controller/follow_joint_trajectory/status" to="/whole_body_controller_2/follow_joint_trajectory/status" />
         <rosparam param="state_topics">
-            - /panda_arm/panda_2_joint_trajectory_controller/state 
+            - /dual_panda_arm/panda_2_joint_trajectory_controller/state 
         </rosparam>
         <rosparam param="client_topics">
-            - /panda_arm/panda_2_joint_trajectory_controller/follow_joint_trajectory
+            - /dual_panda_arm/panda_2_joint_trajectory_controller/follow_joint_trajectory
         </rosparam>
     </node>
 
@@ -49,9 +49,9 @@
         <remap from="/whole_body_controller/follow_joint_trajectory/goal" to="/whole_body_controller_2/follow_joint_trajectory/goal" />
         <remap from="/whole_body_controller/follow_joint_trajectory/result" to="/whole_body_controller_2/follow_joint_trajectory/result" />
         <remap from="/whole_body_controller/follow_joint_trajectory/status" to="/whole_body_controller_2/follow_joint_trajectory/status" />
-        <remap from="robot_description" to="panda_arm/robot_description" />
-        <remap from="joint_states" to="panda_arm/joint_states" />
-        <param name="config" value="$(find giskardpy)/config/panda_arm.yaml" />
+        <remap from="robot_description" to="dual_panda_arm/robot_description" />
+        <remap from="joint_states" to="dual_panda_arm/joint_states" />
+        <param name="config" value="$(find giskardpy)/config/dual_panda_arm.yaml" />
     </node>
 
 </launch>
