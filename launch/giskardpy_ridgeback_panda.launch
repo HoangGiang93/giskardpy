@@ -1,0 +1,18 @@
+<launch>
+
+	<group ns="ridgeback_panda">
+		<remap from="/robot_description" to="robot_description" />
+		<node pkg="giskardpy" type="giskard.py" name="giskard" output="screen">
+			<param name="config" value="RidgebackPandaMujoco" />
+		</node>
+
+		<node pkg="giskardpy" type="interactive_marker.py" name="giskard_interactive_marker" output="screen">
+			<rosparam param="enable_self_collision">False</rosparam>
+			<rosparam param="interactive_marker_chains">
+      - [odom, panda_hand]
+    </rosparam>
+		</node>
+	</group>
+
+
+</launch>
