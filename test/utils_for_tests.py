@@ -20,7 +20,7 @@ from rospy import Timer
 from sensor_msgs.msg import JointState
 from std_msgs.msg import ColorRGBA
 from tf.transformations import rotation_from_matrix, quaternion_matrix
-from tf2_py import LookupException
+from tf2_py import LookupException, ExtrapolationException
 from visualization_msgs.msg import Marker
 
 import giskardpy.utils.tfwrapper as tf
@@ -300,15 +300,19 @@ class GiskardTestWrapper(GiskardWrapper):
         # compare_poses(p2.pose, map_T_odom.pose)
 
     def transform_msg(self, target_frame, msg, timeout=1):
+        result_msg = deepcopy(msg)
         try:
-            return tf.transform_msg(target_frame, msg, timeout=timeout)
-        except LookupException as e:
+            if not self.is_standalone():
+                return tf.transform_msg(target_frame, result_msg, timeout=timeout)
+            else:
+                raise LookupException('just to trigger except block')
+        except (LookupException, ExtrapolationException) as e:
             target_frame = self.world.search_for_link_name(target_frame)
             try:
-                msg.header.frame_id = self.world.search_for_link_name(msg.header.frame_id)
+                result_msg.header.frame_id = self.world.search_for_link_name(result_msg.header.frame_id)
             except UnknownGroupException:
                 pass
-            return self.world.transform_msg(target_frame, msg)
+            return self.world.transform_msg(target_frame, result_msg)
 
     def wait_heartbeats(self, number=2):
         behavior_tree = self.tree.tree
@@ -429,9 +433,6 @@ class GiskardTestWrapper(GiskardWrapper):
 
     def set_joint_goal(self, goal, weight=None, hard=False, decimal=2, expected_error_codes=(MoveResult.SUCCESS,),
                        check=True, group_name=None):
-        """
-        :type goal: dict
-        """
         super().set_joint_goal(goal, group_name, weight=weight, hard=hard)
         if check:
             self.add_goal_check(JointGoalChecker(giskard=self,
@@ -473,7 +474,7 @@ class GiskardTestWrapper(GiskardWrapper):
                                   max_velocity=max_velocity,
                                   weight=weight, **kwargs)
         if check:
-            full_tip_link, full_root_link = self.get_root_and_tip_link(root_link=root_link, root_group=root_group,
+            full_root_link, full_tip_link = self.get_root_and_tip_link(root_link=root_link, root_group=root_group,
                                                                        tip_link=tip_link, tip_group=tip_group)
             self.add_goal_check(RotationGoalChecker(self, full_tip_link, full_root_link, goal_orientation))
 
@@ -492,9 +493,12 @@ class GiskardTestWrapper(GiskardWrapper):
                                      weight=weight,
                                      **kwargs)
         if check:
-            full_tip_link, full_root_link = self.get_root_and_tip_link(root_link=root_link, root_group=root_group,
+            full_root_link, full_tip_link = self.get_root_and_tip_link(root_link=root_link, root_group=root_group,
                                                                        tip_link=tip_link, tip_group=tip_group)
-            self.add_goal_check(TranslationGoalChecker(self, full_tip_link, full_root_link, goal_point))
+            self.add_goal_check(TranslationGoalChecker(giskard=self,
+                                                       tip_link=full_tip_link,
+                                                       root_link=full_root_link,
+                                                       expected=goal_point))
 
     def set_straight_translation_goal(self, goal_pose, tip_link, root_link=None, tip_group=None, root_group=None,
                                       weight=None, max_velocity=None,
@@ -512,7 +516,7 @@ class GiskardTestWrapper(GiskardWrapper):
 
     def set_cart_goal(self, goal_pose, tip_link, root_link=None, tip_group=None, root_group=None, weight=None,
                       linear_velocity=None,
-                      angular_velocity=None, check=False, **kwargs):
+                      angular_velocity=None, check=True, **kwargs):
         goal_point = PointStamped()
         goal_point.header = goal_pose.header
         goal_point.point = goal_pose.pose.position
@@ -595,7 +599,7 @@ class GiskardTestWrapper(GiskardWrapper):
                                   max_velocity=max_velocity,
                                   weight=weight)
         if check:
-            full_tip_link, full_root_link = self.get_root_and_tip_link(root_link=root_link, root_group=root_group,
+            full_root_link, full_tip_link = self.get_root_and_tip_link(root_link=root_link, root_group=root_group,
                                                                        tip_link=tip_link, tip_group=tip_group)
             self.add_goal_check(PointingGoalChecker(self,
                                                     tip_link=full_tip_link,
@@ -618,7 +622,7 @@ class GiskardTestWrapper(GiskardWrapper):
                                       max_angular_velocity=max_angular_velocity,
                                       weight=weight)
         if check:
-            full_tip_link, full_root_link = self.get_root_and_tip_link(root_link=root_link, root_group=root_group,
+            full_root_link, full_tip_link = self.get_root_and_tip_link(root_link=root_link, root_group=root_group,
                                                                        tip_link=tip_link, tip_group=tip_group)
             self.add_goal_check(
                 AlignPlanesGoalChecker(self, full_tip_link, tip_normal, full_root_link, goal_normal))
@@ -653,7 +657,7 @@ class GiskardTestWrapper(GiskardWrapper):
                                        weight=weight)
 
         if check:
-            full_tip_link, full_root_link = self.get_root_and_tip_link(root_link=root_link, root_group=root_group,
+            full_root_link, full_tip_link = self.get_root_and_tip_link(root_link=root_link, root_group=root_group,
                                                                        tip_link=tip_link, tip_group=tip_group)
             goal_point = PointStamped()
             goal_point.header = goal_pose.header
@@ -1657,8 +1661,8 @@ class RotationGoalChecker(GoalChecker):
         current_pose = self.world.compute_fk_pose(self.root_link, self.tip_link)
 
         try:
-            np.testing.assert_array_almost_equal(msg_to_list(expected.pose.quaternion),
+            np.testing.assert_array_almost_equal(msg_to_list(expected.quaternion),
                                                  msg_to_list(current_pose.pose.orientation), decimal=2)
         except AssertionError:
-            np.testing.assert_array_almost_equal(msg_to_list(expected.pose.quaternion),
+            np.testing.assert_array_almost_equal(msg_to_list(expected.quaternion),
                                                  -np.array(msg_to_list(current_pose.pose.orientation)), decimal=2)
