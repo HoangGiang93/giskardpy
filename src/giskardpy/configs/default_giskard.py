@@ -243,9 +243,9 @@ class Giskard:
                                                                                'fill_velocity_values': fill_velocity_values})
 
     def add_omni_drive_joint(self,
-                             name: str,
                              parent_link_name: str,
                              child_link_name: str,
+                             name: str = 'brumbrum',
                              robot_group_name: Optional[str] = None,
                              odometry_topic: Optional[str] = None,
                              translation_limits: Optional[derivative_map] = None,
@@ -284,9 +284,9 @@ class Giskard:
         return self.group_names[0]
 
     def add_diff_drive_joint(self,
-                             name: str,
                              parent_link_name: str,
                              child_link_name: str,
+                             name: str = 'brumbrum',
                              robot_group_name: Optional[str] = None,
                              odometry_topic: Optional[str] = None,
                              translation_limits: Optional[derivative_map] = None,
