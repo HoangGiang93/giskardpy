@@ -1,11 +1,30 @@
 <launch>
-	
-    <group ns="tiago">
+    <arg name="namespace" default="" />
+    <group if="$(eval true if (namespace != '') else false)">
+        <group ns="tiago">
+            <node pkg="giskardpy" type="giskard.py" name="giskard" output="screen">
+                <param name="config" value="TiagoUnreal" />
+            </node>
+
+            <node pkg="giskardpy" type="interactive_marker.py" name="giskard_interactive_marker"
+                output="screen">
+                <rosparam param="enable_self_collision">False</rosparam>
+                <rosparam param="interactive_marker_chains">
+                    - [odom, gripper_left_grasping_frame]
+                    - [odom, gripper_right_grasping_frame]
+                    - [odom, xtion_link]
+                </rosparam>
+            </node>
+        </group>
+    </group>
+
+    <group unless="$(eval true if (namespace != '') else false)">
         <node pkg="giskardpy" type="giskard.py" name="giskard" output="screen">
-            <param name="config" value="TiagoUnreal"/>
+            <param name="config" value="TiagoUnrealNoPrefix" />
         </node>
-    
-        <node pkg="giskardpy" type="interactive_marker.py" name="giskard_interactive_marker" output="screen">
+
+        <node pkg="giskardpy" type="interactive_marker.py" name="giskard_interactive_marker"
+            output="screen">
             <rosparam param="enable_self_collision">False</rosparam>
             <rosparam param="interactive_marker_chains">
                 - [odom, gripper_left_grasping_frame]
