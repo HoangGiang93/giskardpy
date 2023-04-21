@@ -27,8 +27,8 @@ import giskardpy.identifier as identifier
 from giskardpy.tree.behaviors.plugin import GiskardBehavior
 from giskardpy.utils import logging
 from giskardpy.utils.logging import loginfo
-from giskardpy.utils.utils import raise_to_blackboard, \
-    catch_and_raise_to_blackboard
+from giskardpy.utils.utils import raise_to_blackboard
+from giskardpy.utils.decorators import catch_and_raise_to_blackboard, record_time
 
 
 class SendFollowJointTrajectory(ActionClient, GiskardBehavior):
@@ -44,6 +44,7 @@ class SendFollowJointTrajectory(ActionClient, GiskardBehavior):
         supported_action_types = [control_msgs.msg.FollowJointTrajectoryAction]
         supported_state_types = [control_msgs.msg.JointTrajectoryControllerState]
 
+    @record_time
     @profile
     def __init__(self, action_namespace: str, state_topic: str, group_name: str,
                  goal_time_tolerance: float = 1, fill_velocity_values: bool = True):
@@ -124,6 +125,7 @@ class SendFollowJointTrajectory(ActionClient, GiskardBehavior):
     def __str__(self):
         return f'{super().__str__()} ({self.action_namespace})'
 
+    @record_time
     @profile
     def initialise(self):
         super().initialise()
@@ -145,6 +147,7 @@ class SendFollowJointTrajectory(ActionClient, GiskardBehavior):
         self.cancel_tries = 0
 
     @catch_and_raise_to_blackboard
+    @record_time
     @profile
     def update(self):
         """
@@ -155,7 +158,7 @@ class SendFollowJointTrajectory(ActionClient, GiskardBehavior):
         overriding this shit because of the fucking prints
         """
         current_time = rospy.get_rostime()
-        self.logger.debug("{0}.update()".format(self.__class__.__name__))
+        # self.logger.debug("{0}.update()".format(self.__class__.__name__))
         if not self.action_client:
             self.feedback_message = "no action client, did you call setup() on your tree?"
             return py_trees.Status.INVALID
@@ -229,8 +232,8 @@ class SendFollowJointTrajectory(ActionClient, GiskardBehavior):
         Args:
             new_status (:class:`~py_trees.common.Status`): the behaviour is transitioning to this new status
         """
-        self.logger.debug("%s.terminate(%s)" % (self.__class__.__name__, "%s->%s" % (
-        self.status, new_status) if self.status != new_status else "%s" % new_status))
+        # self.logger.debug("%s.terminate(%s)" % (self.__class__.__name__, "%s->%s" % (
+        # self.status, new_status) if self.status != new_status else "%s" % new_status))
         if self.action_client is not None and self.sent_goal:
             motion_state = self.action_client.get_state()
             if ((motion_state == GoalStatus.PENDING) or (motion_state == GoalStatus.ACTIVE) or
