@@ -65,11 +65,11 @@ class QPSolverGurobi(QPSWIFTFormatter):
         self.qpProblem.setMObjective(Q=H, c=None, constant=0.0, xQ_L=self.x, xQ_R=self.x, sense=GRB.MINIMIZE)
         try:
             self.qpProblem.addMConstr(E, self.x, gurobipy.GRB.EQUAL, b)
-        except GurobiError:
+        except (GurobiError, ValueError) as e:
             pass  # no eq constraints
         try:
             self.qpProblem.addMConstr(A, self.x, gurobipy.GRB.LESS_EQUAL, h)
-        except GurobiError:
+        except (GurobiError, ValueError) as e:
             pass # no neq constraints
         self.started = False
 
@@ -81,6 +81,18 @@ class QPSolverGurobi(QPSWIFTFormatter):
         self.qpProblem.printStats()
         self.qpProblem.printQuality()
         gurobipy.setParam('LogToConsole', False)
+
+    def analyze_infeasibility(self):
+        self.qpProblem.computeIIS()
+        constraint_filter = self.qpProblem.IISConstr
+        lb_filter = np.array(self.qpProblem.IISLB, dtype=bool)
+        ub_filter = np.array(self.qpProblem.IISUB, dtype=bool)
+        eq_constraint_ids = np.array(constraint_filter[:self.E.shape[0]], dtype=bool)
+        neq_constraint_ids = constraint_filter[self.E.shape[0]:]
+        num_nA_rows = np.where(self.nlbA_filter_half)[0].shape[0]
+        lbA_constraint_ids = np.array(neq_constraint_ids[:num_nA_rows], dtype=bool)
+        ubA_constraint_ids = np.array(neq_constraint_ids[num_nA_rows:], dtype=bool)
+        return lb_filter, ub_filter, eq_constraint_ids, lbA_constraint_ids, ubA_constraint_ids
 
     @profile
     def problem_data_to_qp_format(self) \
